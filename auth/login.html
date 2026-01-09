@@ -1,20 +1,19 @@
 <script type="module">
-import { auth, db } from '../firebase.js';
-import { signInWithEmailAndPassword } from 
+import { auth } from '../firebase.js';
+import { signInWithEmailAndPassword } from
   "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { doc, getDoc } from 
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 window.login = async () => {
-  const userCred = await signInWithEmailAndPassword(
-    auth, email.value, password.value
-  );
-
-  const snap = await getDoc(doc(db, 'users', userCred.user.uid));
-  const role = snap.data().role;
-
-  if (role === 'admin') location.href = '../admin/admin.html';
-  if (role === 'vendor') location.href = '../vendor/vendor.html';
-  if (role === 'customer') location.href = '../customer/customer.html';
+  try {
+    const user = await signInWithEmailAndPassword(
+      auth,
+      email.value,
+      password.value
+    );
+    alert("Login successful ✅");
+  } catch (error) {
+    alert(error.message);
+    console.error(error);
+  }
 };
 </script>
