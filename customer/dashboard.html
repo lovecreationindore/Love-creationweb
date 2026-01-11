@@ -1,9 +1,84 @@
-<h2>Customer Dashboard</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Customer Dashboard</title>
 
-<ul>
-  <li><a href="vendors.html">Browse Vendors</a></li>
-  <li><a href="bookings.html">My Bookings</a></li>
-  <li><a href="support.html">Support</a></li>
-</ul>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      margin: auto;
+    }
+    button {
+      padding: 10px 15px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
 
-<button onclick="logout()">Logout</button>
+<body>
+
+<!-- 🔐 CUSTOMER AUTH GUARD -->
+<script type="module">
+  import { auth, db } from "../firebase.js";
+  import { onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      location.href = "/auth/login.html";
+      return;
+    }
+
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (!snap.exists() || snap.data().role !== "customer") {
+      location.href = "/auth/login.html";
+      return;
+    }
+
+    // Show user email
+    document.getElementById("email").innerText = user.email;
+  });
+
+  // logout
+  window.logout = async () => {
+    await signOut(auth);
+    location.href = "/auth/login.html";
+  };
+</script>
+<!-- 🔐 END AUTH GUARD -->
+
+<div class="box">
+  <h2>👤 Customer Dashboard</h2>
+  <p>Logged in as: <b id="email">loading...</b></p>
+
+  <hr>
+
+  <h3>What you can do</h3>
+  <ul>
+    <li>Browse vendors</li>
+    <li>Book services</li>
+    <li>View your bookings</li>
+    <li>Contact support</li>
+  </ul>
+
+  <button onclick="location.href='vendors.html'">Browse Vendors</button><br>
+  <button onclick="location.href='bookings.html'">My Bookings</button><br>
+  <button onclick="location.href='support.html'">Support</button><br>
+  <button onclick="logout()">Logout</button>
+</div>
+
+</body>
+</html>
