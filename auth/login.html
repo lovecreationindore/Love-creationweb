@@ -1,49 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Login | Love Creation</title>
+  <title>Login</title>
 </head>
 <body>
 
 <h2>Login</h2>
 
-<input type="email" id="email" placeholder="Email" />
-<br><br>
-<input type="password" id="password" placeholder="Password" />
-<br><br>
+<input type="email" id="email" placeholder="Email"><br><br>
+<input type="password" id="password" placeholder="Password"><br><br>
+
+<select id="loginRole">
+  <option value="admin">Admin</option>
+  <option value="vendor">Vendor</option>
+  <option value="customer">Customer</option>
+</select><br><br>
 
 <button id="loginBtn">Login</button>
-
 <p id="msg"></p>
 
 <script type="module">
-  import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { auth } from "../firebase.js";
+import { auth, db } from "../firebase.js";
+import { signInWithEmailAndPassword }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { doc, getDoc }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const btn = document.getElementById("loginBtn");
-  const msg = document.getElementById("msg");
+loginBtn.onclick = async () => {
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email.value, password.value);
+    const snap = await getDoc(doc(db, "users", cred.user.uid));
 
-  btn.addEventListener("click", async () => {
-    msg.innerText = "Logging in...";
-    try {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    if (!snap.exists()) throw "No role found";
 
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      msg.innerText = "Login successful";
+    const role = snap.data().role;
+    if (role !== loginRole.value) throw "Unauthorized role";
 
-      console.log("User:", userCred.user.email);
+    if (role === "admin") location.href = "/admin/dashboard.html";
+    if (role === "vendor") location.href = "/vendor/dashboard.html";
+    if (role === "customer") location.href = "/customer/dashboard.html";
 
-      // TEMP redirect
-      window.location.href = "dashboard.html";
-
-
-    } catch (err) {
-      msg.innerText = err.message;
-      console.error(err);
-    }
-  });
+  } catch (e) {
+    msg.innerText = e;
+  }
+};
 </script>
 
 </body>
