@@ -8,9 +8,11 @@
 <h2>Register</h2>
 
 <input type="email" id="email" placeholder="Email"><br><br>
-<input type="password" id="password" placeholder="Password (min 8 chars)"><br><br>
+<input type="password" id="password" placeholder="Password (min 6 chars)"><br><br>
 
+<label>Register as:</label><br>
 <select id="role">
+  <option value="">-- Select Role --</option>
   <option value="customer">Customer</option>
   <option value="vendor">Vendor</option>
 </select><br><br>
@@ -27,22 +29,23 @@ from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 registerBtn.onclick = async () => {
   try {
-    const emailVal = email.value;
-    const passVal = password.value;
-    const roleVal = role.value;
+    if (!role.value) throw "Please select a role";
 
-    const cred = await createUserWithEmailAndPassword(auth, emailVal, passVal);
+    const cred = await createUserWithEmailAndPassword(
+      auth, email.value, password.value
+    );
 
     await setDoc(doc(db, "users", cred.user.uid), {
-      email: emailVal,
-      role: roleVal,
+      email: email.value,
+      role: role.value,
       createdAt: Date.now()
     });
 
     msg.innerText = "Registration successful";
-    window.location.href = "login.html";
-  } catch (e) {
-    msg.innerText = e.message;
+    setTimeout(() => location.href = "login.html", 1000);
+
+  } catch (err) {
+    msg.innerText = err;
   }
 };
 </script>
